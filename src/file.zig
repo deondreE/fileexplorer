@@ -23,7 +23,11 @@ pub const FS = struct {
 
         while (try itr.next()) |entry| {
             if (entry.kind == .file) {
-                std.debug.print("{s}", .{entry.name});
+                std.debug.print("File: {s}\n", .{entry.name});
+            }
+
+            if (entry.kind == .directory) {
+                std.debug.print("Dir: {s}\n", .{entry.name});
             }
         }
     }
