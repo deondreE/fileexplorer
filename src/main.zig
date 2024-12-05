@@ -1,4 +1,5 @@
 const std = @import("std");
+const file = @import("./file.zig");
 const rl = @import("raylib");
 
 const Cursor = struct {
@@ -63,6 +64,8 @@ pub fn main() !void {
     defer rl.closeWindow();
 
     rl.setTargetFPS(60);
+
+    _ = try file.FS.run();
 
     while (!rl.windowShouldClose()) {
         if (rl.isWindowResized() or !rl.isWindowFullscreen()) {
