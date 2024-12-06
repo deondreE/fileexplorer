@@ -23,17 +23,16 @@ pub const Node = struct {
         return self.C[i].search(key);
     }
 
-    pub fn splitChild(self: Node, value: *const []u8, rootNode: *Node) void {
-        // TODO: do this.
-    }
+    //    pub fn splitChild(self: Node, value: *const []u8, rootNode: *Node) void {
+    // TODO: do this.
+    //   }
 
-    pub fn insertNonFull(self: Node, key: *const []u8) void {
-        var i: i32 = self.kNum - 1;
-
-        if (leaf) {
-            // TODO: find location of new keys.
-        }
-    }
+    //  pub fn insertNonFull(self: Node, key: *const []u8) void {
+    //      var i: i32 = self.kNum - 1;
+    //      if (leaf) {
+    // TODO: find location of new keys.
+    //        }
+    //   }
 
     pub fn traverse(self: Node) void {
         var i: i32 = 0;
@@ -55,36 +54,7 @@ pub const Tree = struct {
 
     pub fn init() Tree {}
 
-    pub fn insert(self: Tree, key: *const []u8) Tree {
-        if (self.root == null) {
-            self.root = Node{
-                .keys = key,
-                .kNum = 1,
-            };
-        } else {
-            if (self.root.kNum == 2) {
-                var node = Node{
-                    .kNum = self.t,
-                    .leaf = false,
-                };
-
-                // Make old root an move 1 key to the new root.
-                node.C[0] = self.root;
-                node.splitChild("", self.root);
-                var i: i32 = 0;
-                if (node.keys[0] == key)
-                    i += 1;
-
-                node.C[i].insertNonFull(key);
-
-                self.root = node;
-            } else {
-                self.root.insertNonFull(key);
-            }
-        }
-    }
-
-    pub fn delete(node: Node) Tree {}
+    //    pub fn delete(node: Node) Tree {}
 
     pub fn traverse(self: Tree) void {
         if (self.root != null)
