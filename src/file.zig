@@ -79,8 +79,9 @@ pub const FS = struct {
         };
     }
 
-    pub fn run() !void {
-        var dir: std.fs.Dir = try std.fs.openDirAbsolute("/home/denglish/projects/kilo-fs", .{
+    pub fn run(path: []const u8) !void {
+        const String = []const u8;
+        var dir: std.fs.Dir = try std.fs.openDirAbsolute(path, .{
             .access_sub_paths = true,
             .iterate = true,
             .no_follow = true,
@@ -95,7 +96,12 @@ pub const FS = struct {
             }
 
             if (entry.kind == .directory) {
-                std.debug.print("Dir: {s}\n", .{entry.name});
+                const allocator = std.heap.page_allocator;
+
+                const paths = [_]String{ path, entry.name };
+
+                const current_path: []const u8 = try std.fs.path.join(allocator, &paths);
+                std.debug.print("Dir: {s} Path: {s}\n", .{ entry.name, current_path });
             }
         }
     }
