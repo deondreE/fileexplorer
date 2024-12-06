@@ -70,6 +70,11 @@ pub const Tree = struct {
     }
 };
 
+const Entry = struct {
+    filename: []const u8,
+    isDir: bool,
+};
+
 pub const FS = struct {
     start: []const u8,
 
@@ -79,8 +84,13 @@ pub const FS = struct {
         };
     }
 
-    pub fn run(path: []const u8) !void {
+    pub fn run(self: FS, path: []const u8) !void {
         const String = []const u8;
+        const file = try std.fs.cwd().createFile(
+            "core_data.json",
+            .{ .read = true },
+        );
+        defer file.close();
         var dir: std.fs.Dir = try std.fs.openDirAbsolute(path, .{
             .access_sub_paths = true,
             .iterate = true,
@@ -90,17 +100,32 @@ pub const FS = struct {
 
         var itr = dir.iterate();
 
+        // TODO: save information to json file.
+
+        var total: i32 = 0;
         while (try itr.next()) |entry| {
+            total += 1;
+
             if (entry.kind == .file) {
                 std.debug.print("File: {s}\n", .{entry.name});
-            }
+                const e = Entry{
+                    .filename = entry.name,
+                    .isDir = false,
+                };
+                var buf: [@sizeOf(Entry) * 10]u8 = undefined;
+                var vba = std.heap.FixedBufferAllocator.init(&buf);
+                var string = std.ArrayList(u8).init(vba.allocator());
 
+                try std.json.stringify(e, .{}, string.writer());
+                try file.writeAll(&buf);
+            }
             if (entry.kind == .directory) {
                 const allocator = std.heap.page_allocator;
 
                 const paths = [_]String{ path, entry.name };
 
                 const current_path: []const u8 = try std.fs.path.join(allocator, &paths);
+                _ = try self.run(current_path);
                 std.debug.print("Dir: {s} Path: {s}\n", .{ entry.name, current_path });
             }
         }

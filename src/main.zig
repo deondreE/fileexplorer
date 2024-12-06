@@ -64,7 +64,7 @@ pub fn main() !void {
     defer rl.closeWindow();
 
     rl.setTargetFPS(60);
-    _ = try file.FS.run("/home/denglish/projects/kilo-fs");
+    _ = try file.FS.run(file.FS.init(""), "/home/denglish/projects/kilo-fs");
 
     while (!rl.windowShouldClose()) {
         if (rl.isWindowResized() or !rl.isWindowFullscreen()) {
