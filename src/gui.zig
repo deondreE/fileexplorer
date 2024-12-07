@@ -11,9 +11,18 @@ pub var Position = struct {
     y: i32,
 };
 
+pub const WidgetType = enum {
+    Label,
+    Rect,
+};
+
 pub const Widget = struct {
     size: Size,
     position: Position,
+    name: []const u8,
+    type: WidgetType,
+
+    const Self = @This();
 
     pub fn init(size: Size, position: Position) Layout {
         return Widget{
@@ -21,24 +30,66 @@ pub const Widget = struct {
             .position = position,
         };
     }
+
+    pub fn render(self: Self) !void {}
+
+    pub fn handle() !void {}
 };
 
-pub const Layout = struct {
-    startPos: Position,
+pub fn Rect(comptime T: type) type {
+    return struct {
+        widget: Widget,
 
-    pub fn init(startPos: Position) Layout {
-        return Layout{
-            .startPos = startPos,
+        const Self = @This();
+
+        pub fn init(position: Position, size: Size) Self {
+            const widget: Widget = Widget{ .type = WidgetType.Rect, .size = size, .position = position, .name = "Rect" };
+
+            return Self{
+                .widget = widget,
+            };
+        }
+    };
+}
+
+pub fn Layout(comptime T: type) type {
+    return struct {
+        const Location = enum {
+            right,
+            left,
+            bottom,
+            top,
+            center,
         };
-    }
 
-    // calculate each position inside the layout inside here.
-    pub fn calculate() void {}
+        location: Location,
+        array: std.ArrayList(T),
 
-    // push a given widget to the stack to be rendered when it is needed. If not do not render.
-    pub fn pushWidget(self: Layout, newWidget: Widget) !void {}
+        const Self = @This();
 
-    pub fn render() void {}
-};
+        pub fn init(location: Location, array: std.ArrayList(T)) Self {
+            return Self{
+                .location = location,
+                .array = array,
+            };
+        }
 
-pub const Label = struct {};
+        pub fn calculate(w: Widget, l: Location) void {
+            // for each given location calculate what is inside each array list.
+            const currentLoc = switch (l) {
+                .top => "Top",
+                else => "Center",
+            };
+
+            std.debug.print("{s}", .{currentLoc});
+            std.debug.print("{s}", .{w.name});
+        }
+
+        pub fn pushWidget(self: Self, widget: T) !void {
+            if (rl.isWindowFullscreen) { // TODO: some positional calculations required for where it is going to render.}
+                self.array.append(widget); // adds it to the array.
+                try widget.render().?;
+            }
+        }
+    };
+}
