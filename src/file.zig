@@ -86,11 +86,9 @@ pub const FS = struct {
 
     pub fn run(self: FS, path: []const u8) !void {
         const String = []const u8;
-        const file = try std.fs.cwd().createFile(
-            "core_data.json",
-            .{ .read = true },
-        );
+        const file = try std.fs.cwd().createFile("core_data.txt", .{});
         defer file.close();
+
         var dir: std.fs.Dir = try std.fs.openDirAbsolute(path, .{
             .access_sub_paths = true,
             .iterate = true,
@@ -100,24 +98,20 @@ pub const FS = struct {
 
         var itr = dir.iterate();
 
-        // TODO: save information to json file.
-
-        var total: i32 = 0;
+        var total: usize = 0;
         while (try itr.next()) |entry| {
             total += 1;
 
             if (entry.kind == .file) {
-                std.debug.print("File: {s}\n", .{entry.name});
-                const e = Entry{
-                    .filename = entry.name,
-                    .isDir = false,
-                };
-                var buf: [@sizeOf(Entry) * 10]u8 = undefined;
-                var vba = std.heap.FixedBufferAllocator.init(&buf);
-                var string = std.ArrayList(u8).init(vba.allocator());
+                const allocator = std.heap.page_allocator;
+                // std.debug.print("File: {s}\n", .{entry.name});
+                var list = std.ArrayList(String).init(allocator);
+                defer list.deinit();
 
-                try std.json.stringify(e, .{}, string.writer());
-                try file.writeAll(&buf);
+                try list.append(entry.name);
+                std.debug.print("Items: {s}\n", .{list.items});
+
+                try file.writer().print("{s}", .{list.items});
             }
             if (entry.kind == .directory) {
                 const allocator = std.heap.page_allocator;
